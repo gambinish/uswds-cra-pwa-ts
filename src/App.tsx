@@ -24,21 +24,13 @@ const ping = async () => {
 };
 
 function App() {
-  // Access the client
-  const queryClient = useQueryClient();
-  const { data, error, status, refetch } = useQuery("offlineQuery", ping, {
+  const { refetch } = useQuery("offlineQuery", ping, {
     staleTime: Infinity, // Set to Infinity to keep data even when offline
   });
-  const [alertHidden, setSetAlertHidden] = useState(true);
   const [onlineStatus, setOnlineStatus] = useState(false);
 
-  // Check if the app is offline
-  const isOffline = !navigator.onLine;
-
   useEffect(() => {
-    console.log("merpaderp");
     const handleOnline = () => {
-      console.log("handle online");
       // You may want to refetch data when the app comes online
       // You can do that by using the refetch function from the useQuery hook
       setOnlineStatus(true);
@@ -46,21 +38,18 @@ function App() {
     };
 
     const handleOffline = () => {
-      // You may want to display a notification to the user here
       setOnlineStatus(false);
-      console.log("The app is offline!");
     };
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
+    // need this cleanup, else event listeners are immediately removed
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
   }, [refetch]);
-
-  console.log("ONLINE STATUS: ", onlineStatus);
 
   return (
     <div className="App">
