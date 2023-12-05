@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import logo from "./logo.svg";
+import { useState, useEffect } from "react";
 import "./App.css";
 import {
   Alert,
@@ -10,34 +9,43 @@ import {
 } from "@trussworks/react-uswds";
 
 function App() {
-  const [alertHidden, setSetAlertHidden] = useState(true);
-  const [error, setError] = useState(false);
-  const mockSubmit = (e: any) => {
-    setSetAlertHidden(true);
-    e.preventDefault();
+  const [onlineStatus, setOnlineStatus] = useState(false);
 
-    const inputs: Array<any> = Array.from(e.target);
+  // Check if the app is offline
+  const isOffline = !navigator.onLine;
 
-    for (let i = 0; i < inputs.length; i++) {
-      if (inputs[i].type === "text" && !inputs[i].value) {
-        setError(true);
-      }
-    }
-    setSetAlertHidden(false);
-  };
+  useEffect(() => {
+    const handleOnline = () => {
+      // You may want to refetch data when the app comes online
+      // You can do that by using the refetch function from the useQuery hook
+      setOnlineStatus(true);
+    };
+
+    const handleOffline = () => {
+      setOnlineStatus(false);
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    // need this cleanup, else event listeners are immediately removed
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [isOffline]);
+
   return (
     <div className="App">
       <Alert
-        type={error ? "error" : "success"}
+        type={onlineStatus ? "success" : "error"}
         headingLevel={"h1"}
-        hidden={alertHidden}
+        hidden={false}
       >
-        {error
-          ? "There was an error submitting the form"
-          : "Form submitted Successfully!"}
+        {onlineStatus ? "Application online!" : "Application currently offline"}
       </Alert>
       <main className="main-wrapper">
-        <Form onSubmit={mockSubmit} className="noaa-form">
+        <Form onSubmit={() => console.log("submit")} className="noaa-form">
           <Fieldset legend="Name" legendStyle="large">
             <Label htmlFor="first-name">First or given name</Label>
             <span className="usa-hint">For example, Jose, Darren, or Mai</span>
