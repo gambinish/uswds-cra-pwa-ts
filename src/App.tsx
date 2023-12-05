@@ -7,34 +7,18 @@ import {
   Label,
   TextInput,
 } from "@trussworks/react-uswds";
-import { useQuery, useQueryClient } from "react-query";
-
-const ping = async () => {
-  // Perform a ping-like check by attempting to fetch a resource
-  try {
-    const response = await fetch("https://8.8.8.8", { method: "HEAD" }); // Ping Google's Public DNS
-    if (response.ok) {
-      return "Online"; // If the request is successful, consider it online
-    } else {
-      throw new Error("Not reachable");
-    }
-  } catch (error) {
-    throw new Error("Not reachable");
-  }
-};
 
 function App() {
-  const { refetch } = useQuery("offlineQuery", ping, {
-    staleTime: Infinity, // Set to Infinity to keep data even when offline
-  });
   const [onlineStatus, setOnlineStatus] = useState(false);
+
+  // Check if the app is offline
+  const isOffline = !navigator.onLine;
 
   useEffect(() => {
     const handleOnline = () => {
       // You may want to refetch data when the app comes online
       // You can do that by using the refetch function from the useQuery hook
       setOnlineStatus(true);
-      refetch();
     };
 
     const handleOffline = () => {
@@ -49,7 +33,7 @@ function App() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, [refetch]);
+  }, [isOffline]);
 
   return (
     <div className="App">
